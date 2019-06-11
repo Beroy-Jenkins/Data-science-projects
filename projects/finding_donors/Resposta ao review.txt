@@ -1,0 +1,39 @@
+o revisou me passou o seguinte recado:
+"Os cálculos das métricas estão diferentes do esperado.
+
+Para o cálculo da acurácia no classificador inocente, devemos dividir a quantidade de registros que income foi igual
+a 1 pelo total de registros no dataset. A função income.count() já retorna a quantidade de registros mas no código está sendo somando income.count() com np.sum(income).
+
+Corrija também o cálculo da precisão para encontrar o F1 correto. Para ajudar a encontrar a
+resposta correta, o valor do F1 deve ser 0,2917."
+
+esse é o codigo que fiz:
+"
+# TODO: Calcular accuracy, precision e recall
+accuracy = np.sum(income)/(np.sum(income)+income.count())
+recall =  np.sum(income)/np.sum(income)
+precision =  np.sum(income)/(np.sum(income)+income.count())
+
+# TODO: Calcular o F-score utilizando a fórmula acima para o beta = 0.5 e os valores corretos de precision e recall.
+fscore = (1+(0.5*2))((precision*recall)/(((0.5**2)*precision)+recall))
+
+# Exibir os resultados 
+print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accuracy, fscore))
+"
+
+e o resultado:
+Naive Predictor: [Accuracy score: 0.1986, F-score: 0.2365]
+
+pelo que entendi ele pede que a conta para accuracy seja: np.sum(income)/income.count() no qual o resultado dá de fato 0,2917
+Mas a dica da questão fala:
+"
+Quando temos um modelo que sempre prediz '1' (e.x o indivíduo possui remuneração superior à 50k) então nosso modelo não terá Verdadeiros Negativos ou Falso Negativos, pois nós não estaremos afirmando que qualquer dos valores é negativo (ou '0') durante a predição.
+Com isso, nossa accuracy neste caso se torna o mesmo valor da precision (Verdadeiros positivos/ (Verdadeiros positivos + Falso positivos)) pois cada predição que fizemos com o valor '1' que deveria ter o valor '0' se torna um falso positivo; nosso denominador neste caso é o número total de registros.
+"
+de acordo com a dica: Com isso, nossa accuracy neste caso se torna o mesmo valor da precision: (Verdadeiros positivos/ (Verdadeiros positivos + Falso positivos))
+
+Fabio Reale (supervisor) disse que é assim mesmo
+para facilita a compreensão eu mudei o nome das variáveis, mas o cálculo utilizando é o mesmo. Também corrigi os outros itens.
+
+Obrigado pela atenção
+Eduardo D Gamarra
