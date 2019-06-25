@@ -112,8 +112,8 @@ def draw_movie_clusters(clustered, max_users, max_movies):
         
         d = sort_by_rating_density(d, max_movies, max_users)
         
-        d = d.reindex_axis(d.mean().sort_values(ascending=False).index, axis=1)
-        d = d.reindex_axis(d.count(axis=1).sort_values(ascending=False).index)
+        d = d.reindex(d.mean().sort_values(ascending=False).index, axis=1)
+        d = d.reindex(d.count(axis=1).sort_values(ascending=False).index)
         d = d.iloc[:max_users, :max_movies]
         n_users_in_plot = d.shape[0]
         
