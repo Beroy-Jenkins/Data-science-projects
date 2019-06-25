@@ -150,7 +150,7 @@ def draw_movie_clusters(clustered, max_users, max_movies):
 
             plt.setp(ax.get_xticklabels(), rotation=90, fontsize=9)
             plt.tick_params(axis='both', which='both', bottom='off', top='off', left='off', labelbottom='off', labelleft='off') 
-            #print('cluster # {} \n(Showing at most {} users and {} movies)'.format(cluster_id, max_users, max_movies))
+            print('cluster # {} \n(Showing at most {} users and {} movies)'.format(cluster_id, max_users, max_movies))
 
             plt.show()
 
