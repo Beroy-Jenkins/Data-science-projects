@@ -1,0 +1,60 @@
+---
+title: "Testing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+install.packages('ggplot2', dependencies = T) 
+
+library(ggplot2)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+getwd()
+setwd('c:/Users/Avell/Downloads')
+
+df_reddit <- read.csv('reddit.csv')
+
+```
+
+
+```{r}
+table(df_reddit$employment.status)
+
+str(df_reddit)
+summary(df_reddit)
+df_reddit$age.range
+order(df_reddit$age.range)
+levels(df_reddit$age.range)
+
+
+qplot(data = df_reddit, x = ordered(df_reddit$age.range, levels = c('Under 18', '18-24', '25-34', '35-44', '45-54', '55-64', '65 or above')))
+
+levels(df_reddit$income.range)
+
+
+qplot(data = df_reddit, x = ordered(df_reddit$income.range, levels = c( 'Under $20,000', '$100,000 - $149,999', '$150,000 or more', '$20,000 - $29,999', '$30,000 - $39,999', '$40,000 - $49,999', '$50,000 - $69,999', '$70,000 - $99,999')))
+
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
