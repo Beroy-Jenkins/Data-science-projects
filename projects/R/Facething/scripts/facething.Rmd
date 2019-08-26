@@ -1,0 +1,153 @@
+---
+title: "facething"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages('ggplot2', dependencies = T) 
+library(ggplot2)
+```
+
+
+```{r}
+install.packages('gridExtra') 
+library(gridExtra)
+```
+
+
+```{r}
+getwd()
+setwd("C:/Users/Avell/OneDrive/Documentos/udacity/br-machine-learning/projects/R")
+
+df_data_face <- read.csv('../Data/pseudo_facebook.tsv', sep = '\t')
+
+```
+
+
+
+```{r}
+ggplot(data = df_data_face, aes(x = df_data_face$dob_day)) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks = 1:31)+
+  facet_wrap(~dob_month)
+
+
+```
+
+
+
+
+```{r}
+ggplot(aes(x = friend_count), data = df_data_face)
+  geom_histogram(binwidth = 30)
+
+qplot(data = df_data_face, x =  df_data_face$friend_count)
+```
+
+
+```{r}
+qplot(data = df_data_face, x =  df_data_face$friend_count, xlim = c(0,1000))
+```
+
+```{r}
+ggplot(aes(x = friend_count), data = subset(df_data_face, !is.na(gender))) + 
+  geom_histogram(binwidth = 10) + 
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + 
+  facet_wrap(~gender)
+ 
+
+```
+
+```{r}
+table(df_data_face$gender)
+
+by(df_data_face$friend_count, df_data_face$gender, summary)
+
+test = by(df_data_face$friend_count, df_data_face$gender, median)
+
+test[1] - test[2]
+```
+
+242-165
+
+
+```{r}
+qplot( x = df_data_face$tenure/365, data = df_data_face, binwidth = .25, 
+   color = I('black'), fill = I('#099DD9'))+
+  scale_x_continuous(breaks = seq(1,7,1), limits = c(0,7))
+
+
+```
+
+
+
+
+
+```{r}
+qplot( x = df_data_face$age, data = df_data_face, binwidth = 1,
+   color = I('black'), fill = I('#099DD9'))
+```
+
+ 
+```{r}
+ggplot(aes(x = age), data = df_data_face) + 
+  geom_histogram(binwidth = 1, fill = '#5760AB') + 
+  scale_x_continuous(breaks = seq(0, 113, 5))
+```
+
+
+```{r}
+plot1 <- ggplot(data = df_data_face, aes(x = df_data_face$friend_count)) + 
+  geom_histogram(fill = '#5760AB')
+plot2 <- ggplot(data = df_data_face, aes(x = log10(df_data_face$friend_count + 1))) + 
+  geom_histogram(fill = '#5760AB')
+  plot3 <- ggplot(data = df_data_face, aes(x = sqrt(df_data_face$friend_count))) + 
+  geom_histogram(fill = '#5760AB')
+
+grid.arrange(plot1, plot2, plot3)
+               
+```
+
+```{r}
+ggplot(aes(x = age), data = df_data_face) + 
+  geom_histogram(binwidth = 1, fill = '#5760AB')
+```
+
+```{r}
+ggplot(aes(x = www_likes, y = ..count../sum(..count..)), data = subset(df_data_face, !is.na(gender))) +
+  geom_freqpoly(aes(color = gender)) + 
+  scale_x_continuous() + 
+  scale_x_log10()+
+  xlab('likes') + 
+  ylab('Percentage of users with likes')
+```
+
+```{r}
+by(df_data_face$www_likes, df_data_face$gender, sum)
+```
+
+
+```{r}
+ggplot(aes(x = gender, y = friend_count), data = subset(df_data_face, !is.na(gender))) + 
+  geom_boxplot() +
+  coord_cartesian(ylim =c(0, 250))
+ 
+```
+
+```{r}
+df_data_face$used_mobile <- ifelse(df_data_face$mobile_likes > 0, 1, 0)
+df_data_face$used_mobile <- factor(df_data_face$used_mobile)
+
+length (df_data_face$used_mobile)
+summary(df_data_face$used_mobile)[2]/summary(df_data_face$used_mobile,sum())
+
+
+
+```
+
+
+
