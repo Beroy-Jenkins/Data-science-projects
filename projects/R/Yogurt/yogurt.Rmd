@@ -1,0 +1,66 @@
+---
+title: "Yogurt"
+author: "Beroy Jenkins"
+date: "20/09/2019"
+output: html_document
+---
+
+```{r}
+install.packages('ggplot2', dependencies = T) 
+install.packages('gridExtra') 
+install.packages("reshape2")
+
+
+```
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+```
+
+```{r}
+yo <- read.csv('yogurt.csv')
+```
+
+```{r}
+str(yo)
+```
+```{r}
+yo$id <-  factor(yo$id)
+```
+
+
+```{r}
+ggplot(data = yo, aes(x = yo$price)) +
+  geom_histogram()
+```
+
+
+
+```{r}
+yo <-  transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
+```
+
+```{r}
+ggplot(data = yo, aes(x = yo$time, y = yo$price)) +
+  geom_jitter(alpha = 1/4, shape = 21)
+```
+
+
+```{r}
+set.seed(4230)
+
+sample.ids  <- sample(levels(yo$id), 16)
+```
+
+
+```{r}
+ggplot(data = subset(yo, id %in% sample.ids),
+       aes(x = time, y = price))+
+  facet_wrap(~id)+
+  geom_line()+
+  geom_point(aes(size = all.purchases))
+  
+```
+
