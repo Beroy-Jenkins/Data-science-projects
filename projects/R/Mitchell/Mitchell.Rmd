@@ -1,0 +1,44 @@
+---
+title: "Mitchell"
+author: "Beroy Jenkins"
+date: "18/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("alr3")
+```
+
+
+```{r}
+library(ggplot2)
+library(alr3)
+
+```
+
+```{r}
+data("Mitchell")
+```
+
+```{r}
+ggplot(aes(x = Month, y = Temp), data = Mitchell) +
+  geom_point(position = position_jitter(height = 0), color='red')+
+  theme_dark() 
+```
+
+```{r}
+with(Mitchell,cor.test(Month,Temp))
+
+```
+
+```{r}
+ggplot(aes(x = (Month%%12), y = Temp), data = Mitchell) +
+  geom_point(position = position_jitter(height = 0), color='red')+
+  scale_x_continuous(breaks = seq(0,203,12))+
+  theme_dark() 
+```
+
