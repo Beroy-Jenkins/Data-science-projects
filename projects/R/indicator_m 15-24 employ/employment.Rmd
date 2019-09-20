@@ -1,0 +1,61 @@
+---
+title: "Uneployment"
+author: "Beroy Jenkins"
+date: "10/09/2019"
+output: html_document
+---
+```{r}
+install.packages("readxl")
+install.packages('ggplot2', dependencies = T) 
+```
+
+```{r}
+library(readxl)
+
+
+library(ggplot2)
+
+library(tidyr)
+library(dplyr)
+
+```
+
+
+```{r}
+getwd()
+setwd("C:/Users/Avell/OneDrive/Documentos/udacity/br-machine-learning/projects/R/indicator_m 15-24 employ/")
+
+df_data <- read_xlsx('indicator_m 15-24 employ.xlsx')
+```
+```{r}
+df_new <- gather(df_data,"Year","value",2:18)
+
+```
+
+```{r}
+
+```
+
+
+
+
+qplot(data =  df_new, x =  Year, y = value)
+qplot(data =  subset(df_new, df_new[1] == 'Brazil') , x =  Year, y = value)
+
+
+ggplot( data = sample_n(df_new,20)) +
+  geom_freqpoly(aes(color = df_new$`Male 15-24 employment to population (%)`)) + 
+  scale_x_continuous() + 
+  scale_x_log10()+
+  xlab('likes')  
+  
+
+  df_data[2:7]
+  
+  df_data$`Male 15-24 employment to population (%)`
+  df_new[1] == 'Brazil'
+  subset(df_new, df_new[1] == 'Brazil' )
+  
+  df_data[1]
+ 
+  df_new$Year <- factor(df_new$Year)
