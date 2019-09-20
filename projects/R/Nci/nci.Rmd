@@ -1,0 +1,25 @@
+---
+title: "Nci"
+author: "Beroy Jenkins"
+date: "20/09/2019"
+output: html_document
+
+---
+
+```{r}
+install.packages('ggplot2', dependencies = T) 
+install.packages('gridExtra') 
+install.packages("reshape2")
+
+
+```
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+```
+
+```{r}
+nci <- read.table('nci.tsv')
+```
