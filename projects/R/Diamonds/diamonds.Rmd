@@ -27,12 +27,14 @@ str(diamonds)
 ```{r}
 ggplot(aes(x = price), data = diamonds)+
   geom_histogram(binwidth = 1)
-  
-  
+```
+
+
+```{r}
 qplot(data = diamonds, x =  price)
+```
 
-
-```{r}+
+```{r}
 diamonds$price[names(diamonds$price)>500]
 
 as.data.frame(table(diamonds$price >= 15000))
