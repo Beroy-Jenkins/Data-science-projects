@@ -304,4 +304,63 @@ df_data_face.fc_by_age_gender.wide <- dcast(df_data_face.fc_by_age_gender,
 head(df_data_face.fc_by_age_gender.wide)
 
 ```
+tbm possivel 
+pf.fc_by_age_gender.wide <-     subset(pf.fc_by_age_gender[c('age', 'gender', 'median_friend_count')],
+                                        !is.na(gender)) %>%
+    spread(gender, median_friend_count) %>%
+    mutate(ratio = male / female)
+
+head(pf.fc_by_age_gender.wide)
+
+```{r}
+ggplot(data = df_data_face.fc_by_age_gender.wide, aes(x = age, y = female / male))+
+  geom_line()+
+  geom_hline(yintercept = 1,alpha = 0.3, linetype = 2)
+```
+
+
+
+```{r}
+df_data_face$year_joined <- floor(2014 - df_data_face$tenure/365)
+```
+
+```{r}
+df_data_face$year_joined.bucket <- cut (df_data_face$year_joined, c(2004, 2009, 2011, 2012, 2014))
+
+table(df_data_face$year_joined.bucket, useNA = "ifany")
+```
+
+```{r}
+ggplot(aes(x = age, y = friend_count),
+              data = subset(df_data_face, !is.na(gender))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+```
+# As a reminder, the parameter linetype can take the values 0-6:
+
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+
+```{r}
+ggplot(aes(x = age, y = friend_count),
+              data = subset(df_data_face, !is.na(gender))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)+
+  geom_line(stat = 'summary', fun.y = mean, linetype = 6)
+```
+
+```{r}
+with(subset(df_data_face, tenure >= 1), summary(friend_count/tenure))
+```
+
+
+
+```{r}
+ggplot(aes(x = tenure, y = friendships_initiated/tenure),
+              data = subset(df_data_face, tenure >= 1)) +
+  geom_smooth(aes(color = year_joined.bucket))
+```
+
+
+
+
 
