@@ -20,6 +20,36 @@ library(gridExtra)
 library(reshape2)
 ```
 
+
+```{r}
+getwd()
+setwd("C:/Users/Avell/OneDrive/Documentos/udacity/br-machine-learning/projects/R/Nci/")
+```
+
+
+
 ```{r}
 nci <- read.table('nci.tsv')
 ```
+
+
+```{r}
+str(nci)
+colnames(nci) <- c(1:64)
+```
+
+
+```{r}
+nci.long.samp <- melt(as.matrix(nci[1:200,]))
+names(nci.long.samp) <- c('gene', 'case', 'value')
+head(nci.long.samp)
+
+
+```
+
+```{r}
+ggplot(data = nci.long.samp, aes(x = case, y = gene, fill = value))+
+  geom_tile()+
+  scale_fill_gradientn(colours = colorRampPalette(c('blue', 'red'))(100))
+```
+
