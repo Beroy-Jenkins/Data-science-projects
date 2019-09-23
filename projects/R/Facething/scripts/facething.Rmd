@@ -23,6 +23,12 @@ install.packages("reshape2")
 library(reshape2)
 ```
 
+```{r}
+install.packages('GGally')
+library(GGally)
+```
+
+
 
 
 ```{r}
@@ -362,5 +368,14 @@ ggplot(aes(x = tenure, y = friendships_initiated/tenure),
 
 
 
+```{r}
+theme_set(theme_minimal(20))
+
+set.seed(1836)
+df_data_face_subset <- df_data_face[,c(2:15)]
+names(df_data_face_subset)
+ggpairs(df_data_face_subset[sample.int(nrow(df_data_face_subset),1000),])
+
+```
 
 
