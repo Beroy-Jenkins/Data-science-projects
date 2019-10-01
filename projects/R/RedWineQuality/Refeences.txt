@@ -1,0 +1,21 @@
+1. http://adv-r.had.co.nz/Style.html
+2. https://docs.google.com/document/d/1-f3wM3mJSkoWxDmPjsyRnWvNgM57YUPloucOIl07l4c/pub
+3. https://docs.google.com/document/d/1mkjbQX632sfV-xjRy0pCf3S43z-JC6h5ClecMKON_f0/edit
+4. https://archive.ics.uci.edu/ml/datasets/wine+quality
+5. https://rmarkdown.rstudio.com/articles_intro.html
+6. https://honingds.com/blog/dplyr-rename/
+7. http://sape.inf.usi.ch/quick-reference/ggplot2/colour
+8. https://www.datacamp.com/community/tutorials/make-histogram-ggplot2
+9. http://www.sthda.com/english/wiki/ggplot2-density-plot-quick-start-guide-r-software-and-data-visualization
+10. https://www.statisticshowto.datasciencecentral.com/probability-and-statistics/skewed-distribution/
+11. https://pt.wikipedia.org/wiki/Diagrama_de_caixa
+12. https://dplyr.tidyverse.org/reference/filter.html
+13. http://www.sthda.com/english/wiki/descriptive-statistics-and-graphics
+14. https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html
+15. https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggally/ggcorr/
+16. https://www.rdocumentation.org/packages/GGally/versions/1.4.0/topics/ggcorr
+17. https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf    **** this one is great****
+18. http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2
+19. http://www.sthda.com/english/wiki/ggplot2-title-main-axis-and-legend-titles
+20. http://www.sthda.com/english/wiki/ggplot2-point-shapes
+21. https://www.r-graph-gallery.com/boxplot.html

@@ -1,0 +1,778 @@
+Red Wine Quality by Eduardo Dionisio Gamarra
+========================================================
+
+> **O conjunto de dados**:
+O conjunto de dados é um arquivo csv contendo 1599 observações sobre vinhos tintos, com 13 variáveis associadas a eles (1 variável de ID + 11 variáveis de atributos + 1 variável de saída).
+
+> **A questão principal**:
+A principal questão é descobrir: quais propriedades químicas influenciam a qualidade dos vinhos tintos?
+Tentarei responder à pergunta executando a Análise Exploratória de Dados (EDA) do conjunto de dados.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(GGally)
+library(memisc)
+library(MASS)
+library(car)
+```
+
+```{r echo=FALSE, Load_the_Data}
+wines <- read.csv ('wineQualityReds.csv')
+```
+
+
+# Seção Gráficos univariados
+
+
+#### Estrutura e resumo do conjunto de dados
+Vamos dar uma olhada em como nossos dados estão estruturados.
+```{r echo =FALSE}
+str(wines)
+summary(wines)
+```
+
+Vou fazer algumas alterações no conjunto de dados:
+Primeiro, estou renomeando a variável 'X' para 'wine.id' para torná-la mais intuitiva.
+Eu também acho que é uma boa idéia transformar a variável 'qualidade' de um Inteiro em um Fator.
+E por último, vou criar uma variável fatorial 'rank' para melhor classificação de qualidade, será (ruim, médio e bom)
+
+```{r echo=FALSE}
+#renaming
+wines <- wines %>% dplyr::rename('wine.id' = 'X')
+
+#transforming quality
+wines$quality <- factor(wines$quality, ordered = T)
+
+#creating rank
+
+wines$rank <- ifelse(wines$quality < 5, 'bad',
+                     ifelse(wines$quality < 7, 'medium',
+                            'good'))
+
+# Dividing the quality into 3 rating levels
+wines$rank <- ordered(wines$rank,
+                      levels = c('bad', 'medium', 'good'))
+```
+
+Agora vamos visualizar a estrutura após as alterações.
+
+```{r echo=FALSE, warning=FALSE}
+str(wines)
+
+quality_count <- ggplot(data = wines, aes(x = quality, fill = rank))+
+  ggtitle('Wines with quality filled for rank')+
+  geom_histogram(stat ="count")+
+  ggtitle ("Barchart of quality filled with rank")+
+  scale_x_discrete()+
+  theme_linedraw()
+print(quality_count)
+```
+
+O gráfico corresponde à documentação do conjunto de dados que indica que as classes não são equilibradas, a maioria dos vinhos tem qualidade média.
+Vou explorar a distribuição das variáveis:
+
+
+#### Fixed acidity 
+
+acidez fixa (ácido tartárico - g / dm ^ 3): a maioria dos ácidos envolvidos no vinho ou fixa ou não volátil (não evapora rapidamente).
+
+```{r echo=FALSE, warning=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = fixed.acidity))+
+  ggtitle('Fixed acidity count')+
+  geom_histogram(binwidth = 1, aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(4,16,1))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+
+plot2 <- ggplot(data = wines, aes( x = '', y = fixed.acidity)) + 
+  ggtitle('Fixed acidity count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(4,16,1))+
+  coord_flip()
+
+
+grid.arrange(plot1, plot2)
+summary(wines$fixed.acidity)
+```
+
+Parece que a distribuição de Acidez fixa está distorcida positivamente. A mediana é de cerca de 8 e, devido a alguns valores discrepantes, o quartil 3 foi arrastado para cerca de 9,2.
+
+#### Volatile acidity
+
+acidez volátil (ácido acético - g / dm ^ 3): a quantidade de ácido acético no vinho, que em níveis muito altos pode levar a um sabor desagradável ao vinagre.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = volatile.acidity))+
+  ggtitle('Volatile acidity count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(.12,1.6,.20))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+
+plot2 <- ggplot(data = wines, aes( x = '', y = volatile.acidity)) + 
+  ggtitle('Volatile acidity count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(.12,1.6,.20))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+Parece que a distribuição da volatilidade também é distorcida positivamente. com dois picos em 0,4 e 0,6.
+
+
+
+#### Citric acid
+
+ácido cítrico (g / dm ^ 3): encontrado em pequenas quantidades, o ácido cítrico pode adicionar 'refrescância' e sabor aos vinhos.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = citric.acid))+
+  ggtitle('Citric acid count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(0,1,.1))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+
+plot2 <- ggplot(data = wines, aes( x = '', y = citric.acid)) + 
+  ggtitle('Citric acid count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(0,1,0.1))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+Este é um pouco difícil de adivinhar se é inclinado apenas olhando o histograma, mas a posição da caixa está à esquerda do gráfico, o que sugere que é um gráfico de caixa inclinado à direita; portanto, consideraremos que uma distribuição inclinada positivamente .
+
+
+#### Residual sugar
+
+açúcar residual (g / dm ^ 3): a quantidade de açúcar restante após a fermentação para, é raro encontrar vinhos com menos de 1 grama / litro e vinhos com mais de 45 gramas / litro são considerados doces.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = residual.sugar))+
+  ggtitle('Residual sugar count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(.9,15,2))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = residual.sugar)) +
+  ggtitle('Residual sugar count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(.9,15,2))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+Esta é uma distribuição de log tail. Pode ser transformado removendo alguns discrepantes (5%) e aplicando uma transformação de log.
+
+#### Chlorides 
+
+cloretos (cloreto de sódio - g / dm ^ 3): a quantidade de sal no vinho.
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = chlorides))+
+  ggtitle('Chlorides count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(.012,.611,.1))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = chlorides)) +
+  ggtitle('Chlorides count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(0.9,15,2))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+Este também é uma distribuição de cauda longa. Como o anterior, ele pode ser transformado removendo alguns discrepantes (5%) e aplicando uma transformação de log.
+
+#### Free sulfur dioxide
+
+dióxido de enxofre livre (mg / dm ^ 3): a forma livre de SO2 existe em equilíbrio entre o SO2 molecular (como um gás dissolvido) e o íon bissulfito; impede o crescimento microbiano e a oxidação do vinho.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = free.sulfur.dioxide))+
+  ggtitle('Free sulfur dioxide count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(0,72,10))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = free.sulfur.dioxide)) + 
+  ggtitle('Free sulfur dioxide count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(0,72,10))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+A distribuição do free.sulfur.dioxide é inclinada positivamente.
+
+#### Total sulfur dioxide
+
+dióxido de enxofre total (mg / dm ^ 3): a quantidade de formas livres e ligadas de S02; em baixas concentrações, o SO2 é principalmente indetectável no vinho, mas em concentrações livres de SO2 acima de 50 ppm, o SO2 se torna evidente no nariz e no sabor do vinho.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = total.sulfur.dioxide))+
+  ggtitle('Total sulfur dioxide count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(6,289,30))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = total.sulfur.dioxide)) + 
+  ggtitle('Total sulfur dioxide count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(6,289,30))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+olhando os gráficos, podemos dizer que essa distribuição é uma cauda longa, mas eu prefiro classificá-la como uma distorção positiva, porque se você remover os outliers (5%), você terminará com um gráfico muito mais razoável .
+
+
+#### Density
+
+densidade (g / cm ^ 3): a densidade do vinho é próxima à da água, dependendo da porcentagem de álcool e açúcar.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = density))+
+  ggtitle('Density count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(.9900,1.0040,.0025))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = density)) + 
+  ggtitle('Density count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(.9900,1.0040,.0025))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+A densidade tem uma distribuição normal.
+
+#### pH
+
+pH: descreve como um vinho é ácido ou básico em uma escala de 0 (muito ácido) a 14 (muito básico); a maioria dos vinhos tem entre 3-4 na escala de pH.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = pH))+
+  ggtitle('pH count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(2.74,4.01,.30))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = pH)) + 
+  ggtitle('pH count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(2.74,4.01,.30))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+A distribuição do pH tem uma distribuição normal.
+
+#### Sulphates (potassium sulphate - g / dm3)
+
+sulfatos: aditivo de vinho que pode contribuir para os níveis de gás dióxido de enxofre (S02), que atua como antimicrobiano e antioxidante.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = sulphates))+
+  ggtitle('Sulphates count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(.33,2,.2))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = sulphates)) + 
+  ggtitle('Sulphates count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(.33,2,.2))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+```
+
+Como esta variável está relacionada ao enxofre, não é surpresa que a distribuição esteja inclinada positivamente.
+
+#### Alcohol
+
+Álcool (% em volume): o percentual de teor alcoólico do vinho.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = alcohol))+
+  ggtitle('Alcohol count')+
+  geom_histogram(aes(fill = ..count..))+
+  scale_x_continuous(breaks = seq(8.4,15,1))+
+  scale_fill_gradient('count',low = 'green', high = 'red')+
+  theme_dark()
+
+plot2 <- ggplot(data = wines, aes( x = '', y = alcohol)) + 
+  ggtitle('Alcohol count')+
+  geom_jitter(alpha = .1 ) +
+  geom_boxplot(alpha = .2, color = 'red' ) +
+  scale_y_continuous(breaks = seq(8.4,15,1))+
+  coord_flip()
+
+grid.arrange(plot1, plot2)
+
+```
+
+A distribuição do álcool é ligeiramente inclinada positivamente.
+
+Conclusão:
+
+- ***Positivamente enviesado***: acidez fixa, acidez volátil, ácido cítrico, dióxido de enxofre livre, dióxido de enxofre total, sulfatos, álcool
+
+- ***Cauda longa ***: açúcar residual, cloretos
+
+- ***Normal***: densidade, PH
+
+
+
+# Análise univariada
+
+### Qual é a estrutura do seu conjunto de dados?
+O conjunto de dados do vinho tinto teve 1599 observações e 13 variáveis originalmente. Eu adicionei uma variável chamada 'rank'.
+O conjunto de dados é organizado de forma organizada, e a maioria dos valores são float (num) trecho x (agora wine.id) e qualidade.
+
+
+### Qual é / são os principais recursos de interesse em seu conjunto de dados?
+Estou interessado nos componentes químicos, então não estou interessado em densidade ou ph (não ignorarei as variáveis para medir o impacto dos componentes químicos na qualidade).
+
+### Que outros recursos do conjunto de dados você acha que ajudarão a apoiar sua investigação sobre seus recursos de interesse?
+Qualidade e classificação, porque elas me ajudarão a entender a quantidade de impacto que cada componente químico causará na qualidade.
+
+### Você criou novas variáveis a partir de variáveis existentes no conjunto de dados?
+
+Sim, eu criei a classificação variável, uma variável categórica.
+
+
+
+### Dos recursos que você investigou, houve alguma distribuição incomum? Você executou alguma operação nos dados para arrumar, ajustar ou alterar a forma dos dados? Se sim, por que você fez isso?
+Não havia necessidade de alterar ou ajustar os dados, os valores discrepantes parecem valores de dados verdadeiros e não erros de entrada.
+As distribuições encontradas nos dados foram principalmente inclinadas positivamente.
+
+
+
+# Seção Gráficos bivariados
+
+A documentação diz que várias das variáveis podem estar correlacionadas, vamos começar olhando para ela.
+
+```{r echo=FALSE,message=FALSE, Bivariate_Plots}
+c <- wines %>%
+  dplyr::select(-wine.id, -rank, -density, -pH ) %>%
+  mutate(
+    quality = as.numeric(quality)
+  )
+
+corr_plot <- ggcorr(data = c,
+                    size = 2, label = TRUE, label_round = 2, name = 'Correlation level')+
+  ggtitle('Variables correlations')+
+  theme_dark()
+print(corr_plot)
+```
+
+Temos certeza de que todos os produtos químicos influenciam a qualidade dos vinhos,
+Se escolhermos as quatro principais influências que obtemos.
+
+| álcool | 0,48
+| volatile.acidity | -0,39
+| sulfatos | 0,25
+| citric.acid | 0,23
+
+Vamos dar uma olhada nessas quatro variáveis.
+
+#### Qualidade versus álcool
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+plot1 <- ggplot(data = wines, aes(x = quality, y = alcohol)) +
+  ggtitle(('Quality vs Alcohol'))+
+  geom_jitter(alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 20, 
+               size = 4)
+
+
+
+plot2 <- ggplot(data = wines, aes(x = rank, y = alcohol)) +
+  ggtitle(('Quality vs Alcohol'))+
+  geom_jitter( alpha = 0.3, shape = 18) +
+  geom_boxplot(alpha = 0.5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red",
+               shape = 20, 
+               size = 4)
+
+grid.arrange(plot1, plot2)
+```
+
+O gráfico deixa claro que vinhos de alta qualidade têm maior teor alcoólico.
+
+Agora vamos traçar a acidez volátil.
+
+#### Acidez volátil vs álcool
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+plot1 <- ggplot(data = wines, aes(x = quality, y = volatile.acidity)) +
+  ggtitle(('Quality vs Volatile Acidity'))+
+  geom_jitter(alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 20, 
+               size = 4)
+
+
+
+plot2 <- ggplot(data = wines, aes(x = rank, y = volatile.acidity)) +
+  ggtitle(('Quality vs Volatile Acidity'))+
+  geom_jitter( alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red",
+               shape = 20, 
+               size = 4)
+
+grid.arrange(plot1, plot2)
+
+```
+
+Como podemos ver, a variável ácido volátil parece ter uma influência negativa sobre o vinho, porque à medida que o nível de ácido volátil sobe, a qualidade / classificação do vinho diminui.
+
+
+Sulfatos vs álcool 
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = quality, y = sulphates)) +
+  ggtitle(('Quality vs Sulphates'))+
+  geom_jitter(alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 20, 
+               size = 4)
+
+
+```
+
+Podemos ver que os vinhos com um valor de qualidade mais alto com mais sulfatos do que outros com menos quantidade de sulfatos.
+
+
+Sulfatos vs ácido cítrico
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+plot1 <- ggplot(data = wines, aes(x = quality, y = citric.acid)) +
+  ggtitle(('Quality vs Citric Acid'))+
+  geom_jitter(alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 20, 
+               size = 4)
+
+
+
+plot2 <- ggplot(data = wines, aes(x = rank, y = citric.acid)) +
+  ggtitle(('Quality vs Citric Acid'))+
+  geom_jitter( alpha = .3, shape = 18) +
+  geom_boxplot(alpha = .5,color = 'red') +
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red",
+               shape = 20, 
+               size = 4)
+
+grid.arrange(plot1, plot2)
+
+```
+
+WPodemos ver que o ácido cítrico tem uma correlação positiva com a qualidade do vinho.
+
+
+
+
+# Análise bivariada
+
+Fale sobre alguns dos relacionamentos que você observou nesta parte da investigação. Como os recursos de interesse variaram com outros recursos no conjunto de dados?
+
+Minha análise foi focada nos recursos químicos do conjunto de dados, depois de confirmar que todas as variáveis químicas têm impacto na qualidade, escolhi os recursos com um coeficiente de correlação maior que 0,2. para investigar esse impacto.
+
+Eu escolhi:
+
+O álcool tem uma correlação positiva de 0,47.
+
+
+A acidez volátil teve uma correlação negativa de -0,39.
+
+
+Os sulfatos têm uma correlação positiva de 0,25
+
+
+O ácido cítrico tem uma correlação positiva de 0,22
+
+
+### Você observou algum relacionamento interessante entre os outros recursos (não os principais recursos de interesse)?
+
+Eu encontrei a relação entre o dióxido de enxofre livre e o dióxido de enxofre total com 0,67 de correlação positiva.
+
+
+### Qual foi o relacionamento mais forte que você encontrou?
+
+Ácido cítrico com acidez fixa e dióxido de enxofre total com dióxido de enxofre livre, ambos têm 6,7 de correlação.
+E sobre a análise da qualidade do vinho tinto, o álcool e a acidez volátil tiveram a relação mais forte
+
+
+
+# Seção de gráficos multivariados
+
+O álcool parece ter um papel importante na qualidade do vinho, então agora tentarei inserir mais algumas variáveis para analisar o quanto elas contribuem para a qualidade geral.
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, Multivariate_Plots}
+ggplot(data = wines, aes(x = volatile.acidity, y = alcohol, color = quality)) + 
+  ggtitle('Alcohol by Volatile acidity and Quality')+
+  geom_point(position = 'jitter') + 
+  scale_color_brewer(type = 'type', palette='Reds', guide = guide_legend(title = 'Quality level',
+                                                                         reverse = TRUE,
+                                                                         override.aes = list(alpha = 1, size = 2)))+
+  theme_dark()
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = alcohol, y = volatile.acidity, color = quality)) + 
+  ggtitle('Alcohol by Volatile acidity and Rank')+
+  geom_point(alpha = .5) +
+  scale_color_brewer(type = 'type', palette='Reds')+
+  facet_wrap(~rank)+
+  theme_dark()
+```
+
+Aqui podemos ver que a maioria dos bons vinhos tem valores de álcool acima de 11% e perto de 0,4 de acidez volátil.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = sulphates, y = alcohol, color = quality)) + 
+  ggtitle('Alcohol by Sulphates and Quality')+
+  geom_point(position = 'jitter') + 
+  scale_color_brewer(type = 'type', palette='Reds', guide = guide_legend(title = 'Quality level',
+                                                                         reverse = TRUE,
+                                                                         override.aes = list(alpha = 1, size = 2)))+
+  theme_dark()
+
+```
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = alcohol, y = sulphates, color = quality)) + 
+  ggtitle('Alcohol by Sulphates and Rank')+
+  geom_point(alpha = .5) +
+  scale_color_brewer(type = 'type', palette='Reds')+
+  facet_wrap(~rank)+
+  theme_dark()
+```
+
+A maioria dos bons vinhos tem valores de álcool acima de 11% e entre 0,5 e 1 de sulfatos, resultando em vinhos de qualidade 7 ou superior.
+
+
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = citric.acid, y = alcohol, color = quality)) + 
+  ggtitle('Alcohol by Citric acid and Quality')+
+  geom_point(position = 'jitter') + 
+  scale_color_brewer(type = 'type', palette='Reds', guide = guide_legend(title = 'Quality level',
+                                                                         reverse = TRUE,
+                                                                         override.aes = list(alpha = 1, size = 2)))+
+  theme_dark()
+```
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data = wines, aes(x = alcohol, y = citric.acid, color = quality)) + 
+  ggtitle('Alcohol by Citric Acid and Rank')+
+  geom_point(alpha = .5) +
+  scale_color_brewer(type = 'type', palette='Reds')+
+  facet_wrap(~rank)+
+  theme_dark()
+```
+
+A maioria dos bons vinhos tem valores de álcool acima de 11% e 0,25 de ácido cítrico, resultando em vinhos de qualidade 7 e acima
+
+
+# Modelo linear multivariável
+
+Este modelo linear foi criado para prever a qualidade do vinho com base nas principais propriedades químicas.
+Os recursos são selecionados na ordem da correlação entre esse recurso e a qualidade do vinho.
+
+```{r Linear_Model}
+set.seed(1221)
+
+sample_data <- sample_frac(wines, .6)
+
+test_data <- wines[ !wines$wine.id %in% sample_data$wines$wine.id, ]
+m1 <- lm(as.numeric(quality) ~ alcohol, data = wines)
+m2 <- update(m1, ~ . + volatile.acidity)
+m3 <- update(m2, ~ . + sulphates)
+m4 <- update(m3, ~ . + citric.acid)
+mtable(m1,m2,m3,m4)
+```
+
+wine_quality = 0.646 + 0.309xalcohol - -1.265xvolatile.acidity + 0.696xsulphates - -0.079xcitric.acid 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+wine_predict <- data.frame(
+  test_data$quality,
+  test_data$rank,
+  predict(m4, test_data) - as.numeric(test_data$quality)
+)
+
+names(wine_predict) <- c("quality", "rank", "error")
+
+erro_plot1 <- ggplot(data = wine_predict, aes(x = quality, y=error)) +
+  ggtitle("Errors vs expected quality")+
+  geom_jitter(alpha = .3)
+
+erro_plot2 <- ggplot(data = wine_predict, aes(x = rank, y=error)) +
+  ggtitle("Errors vs expected quality")+
+  geom_jitter(alpha = .3)
+
+print(erro_plot1)
+print(erro_plot2)
+```
+
+
+
+
+
+# Análise multivariada
+
+Fale sobre alguns dos relacionamentos que você observou nesta parte da investigação. Havia recursos que se fortaleceram em termos de olhar para os seus recursos de interesse?
+
+Sim, descubro que o ácido cítrico mais alto e a menor acidez volátil contribuem para melhores vinhos. Além disso, vinhos melhores tendem a ter maior teor alcoólico.
+
+
+
+### Houve alguma interação interessante ou surpreendente entre os recursos?
+
+É interessante notar o quão baixo o ácido cítrico tem, o ácido cítrico, apesar de fracamente correlacionado, contribui para melhorar a qualidade do vinho com sua pequena quantidade. por exemplo, se variarmos o valor do ácido cítrico em um vinho em 0,05, isso fará uma enorme diferença dependendo das outras variáveis.
+
+
+### OPCIONAL: Você criou modelos com seu conjunto de dados? Discuta os pontos fortes e as limitações do seu modelo.
+
+Sim, o modelo linear de 4 características foi criado para prever a qualidade do vinho usando essas características. No entanto, a qualidade do vinho é um objeto complexo, precisa de mais variáveis para ser corretamente prevista. O principal problema desse insue foi que não havia dados estatísticos suficientes para ter um nível de confiança significativo nas equações produzidas.
+
+Como nosso conjunto de dados é composto principalmente por vinhos de qualidade "Média" e como há muito poucos dados sobre os vinhos de qualidade "Bom" e "Ruim" no conjunto de dados, pode ser difícil prever estatísticas para os casos extremos.
+------
+
+# Gráficos Finais e Resumo
+
+### Gráfico um
+```{r echo=FALSE, Plot_One}
+print(quality_count)
+```
+
+### Descrição Um
+
+Este gráfico é importante, mostra como os nossos dados são distribuídos e nos dá a ideia de que os dados estão desequilibrados. Precisamos ter isso em mente ao analisar as variáveis.
+
+
+### Gráfico dois
+```{r echo=FALSE, Plot_Two}
+print(corr_plot)
+```
+
+### Descrição Dois
+
+Eu acho que esse gráfico é importante, mostra a correlação entre nossas variáveis, com ele escolhemos quais variáveis usaremos para analisar para encontrar a resposta para a pergunta principal.
+Observe que este está focado nas variáveis químicas, então eu não incluí as variáveis de densidade e pH.
+
+### Gráfico Três
+```{r echo=FALSE, warning=FALSE, message=FALSE, Plot_Three}
+print(erro_plot1)
+print(erro_plot2)
+
+```
+
+### Descrição três
+
+Este gráfico mostra a densidade dos dados em torno do nível médio de qualidade. Isso corrobora com a plotagem da contagem de qualidade e registrou o fato de que a maior parte do nosso conjunto de dados contém vinhos de qualidade "média" e não há muitos dados nos intervalos extremos. com dificuldade a tarefa do melhor modelo para prever vinhos de qualidade "boa" e "ruim".
+
+------
+# Reflexão
+
+O conjunto de dados do vinho tinto contém 1.599 observações, 13 variáveis associadas a eles (1 variável de identificação + 11 variáveis de atributos + 1 variável de saída).
+Examinando a documentação, ele especifica que o conjunto de dados não é equilibrado e analisando o quanto o conjunto de dados está desequilibrado. O conjunto de dados para vinhos de qualidade média cobre mais de 80% da distribuição.
+
+Além disso, a documentação menciona que o conjunto completo de dados possui o número de instâncias: vinho tinto - 1599; vinho branco - 4898.
+
+Com isso, eu sabia que as correlações poderiam ser alteradas e que meu modelo linear teria mais dificuldade em prever vinhos bons e ruins do que os médios.
+
+Minha principal pergunta era responder: Quais propriedades químicas influenciam a qualidade dos vinhos tintos. Eu recebi a resposta na seção Gráficos bivariados quando vi a correlação entre as variáveis, todas as variáveis se correlacionam com a qualidade dos vinhos. Mas eu decidi explorar mais e analisar quais variáveis têm mais influência na qualidade.
+
+Essas variáveis são:
+
+Álcool: O fator N.1 se correlacionou com a qualidade do vinho. Os dados sugerem que quanto maior o teor de álcool, maior a probabilidade de melhor qualidade do vinho com 0,48.
+
+Acidez volátil: a acidez volátil tem a correlação negativa mais forte com a qualidade do vinho com -0,39.
+
+Sulfatos: Os sulfatos têm uma correlação positiva com a qualidade do vinho com 0,25.
+
+Ácidos cítricos: tem uma correlação positiva com a qualidade do vinho com 0,23.
+
+Se o conjunto de dados tivesse mais observações com vinhos bons e ruins, a qualidade da análise seria muito melhor, tendo essas observações e talvez mais algumas variáveis incluídas, o conjunto de dados resultaria em uma percepção totalmente diferente sobre a análise.
+
